@@ -1,0 +1,16 @@
+#
+# Avalanche node metrics and managment service
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.managmentService.name }}
+  labels:
+    {{- include "kube-avax.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.managmentService.port }}
+      name: metrics
+  selector:
+    {{- include "kube-avax.selectorLabels" . | nindent 4 }}

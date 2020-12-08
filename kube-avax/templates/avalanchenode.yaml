@@ -1,0 +1,111 @@
+#
+# Avalanche node
+#
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "kube-avax.fullname" . }}
+  labels:
+    {{- include "kube-avax.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "kube-avax.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "kube-avax.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "kube-avax.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "kube-avax.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: avalanchego
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.avalancheNode.containerPort }}
+              protocol: TCP
+          command: {{ .Values.avalancheNode.command }}
+          {{- if .Values.avalancheNode.args }}
+          args: {{ .Values.avalancheNode.args }}
+          {{- end }}
+          volumeMounts:
+            - name: avalanchego
+              mountPath: /root/.avalanchego
+            {{- if .Values.stakingKey }}
+            - name: {{ .Values.stakingKey }}
+              mountPath: /root/.avalanchego/staking
+              readOnly: true
+            {{- end }}
+          # /ext/health endpoint returns success after
+          # the node is fully synchronized
+          # use a very long delay to allow for synchronization
+          {{- if .Values.liveness }}
+          # ext/health endpoint only works ofter full node
+          # synchronization, which takes 10-20 minutes
+          # instead use a different endpoint
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -H 'content-type:application/json;'
+                - -data '{"jsonrpc":"2.0","id":1,"method" :"info.getNodeID"}' 
+                - http://localhost:9650/ext/info
+            initialDelaySeconds: 10
+            periodSeconds: 10 # check every 10 seconds
+            failureThreshold: 12 # fail after 2 mins
+          {{- end }}
+          {{- if .Values.readiness }}
+          readinessProbe:
+            exec:
+              command:
+                - curl
+                - -H 'content-type:application/json;'
+                - -data '{"jsonrpc":"2.0","id":1,"method" :"info.getNodeID"}' 
+                - http://localhost:9650/ext/info
+            initialDelaySeconds: 10
+            periodSeconds: 10 # check every 10 seconds
+            failureThreshold: 12 # fail after 2 mins
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      {{- if .Values.stakingKey }}
+        - name: {{ .Values.stakingKey }}
+          secret:
+            secretName: {{ .Values.stakingKey }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: avalanchego
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.storage }}
+  

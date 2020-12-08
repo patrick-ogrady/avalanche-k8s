@@ -1,0 +1,16 @@
+#
+# Avalanche node peer communication servoce
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kube-avax.fullname" . }}
+  labels:
+    {{- include "kube-avax.labels" . | nindent 4 }}
+spec:
+  type: NodePort
+  ports:
+    - port: {{ .Values.peerService.port }}
+      name: {{ .Values.peerService.name }}
+  selector:
+    {{- include "kube-avax.selectorLabels" . | nindent 4 }}

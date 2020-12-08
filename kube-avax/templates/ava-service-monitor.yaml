@@ -1,0 +1,16 @@
+{{- if .Values.monitoring.enable }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: prometheus-stack
+  name: avalanche-servicemonitor
+spec:
+  endpoints:
+  - interval: 15s
+    port: metrics
+    path: /ext/metrics
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-avax
+{{- end }}

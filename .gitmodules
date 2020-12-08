@@ -1,0 +1,3 @@
+[submodule "node-monitoring"]
+	path = node-monitoring
+	url = https://github.com/ava-labs/node-monitoring.git
