@@ -1,6 +1,6 @@
 ## Running Avalanche Validator on Kubernetes
 
-This project deployes Avalanche Validator onto k8s cluster. It uses Prometheus operator for monitoring.
+This project deploys Avalanche Validator onto k8s cluster. It uses Prometheus operator for monitoring.
 For details see this [Medium article](https://rovechkin-56984.medium.com/running-avalanche-validator-using-kubernetes-dd255461fc55)
 
 ## Prerequisites
