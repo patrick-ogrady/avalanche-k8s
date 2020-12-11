@@ -1,6 +1,11 @@
 ## Prerequisites
+```
+# clone project with submodules
+git clone --recursive https://github.com/rovechkin1/avalanche-k8s
+```
 ### Clone submodules
 ```
+# add submodules after regular clone
 git submodule update --init --recursive
 ```
 
