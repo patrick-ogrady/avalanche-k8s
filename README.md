@@ -1,12 +1,12 @@
 ## Running Avalanche Validator on Kubernetes
 
 This project deploys Avalanche Validator into k8s cluster. It uses Prometheus operator for monitoring.
-For details see this [Medium article](https://rovechkin-56984.medium.com/running-avalanche-validator-using-kubernetes-dd255461fc55)
+For details see this [Medium article](https://rovechkin-56984.medium.com/running-avalanche-validator-using-kubernetes-dd255461fc55).
 
 ## Prerequisites
 ```
 # clone project with submodules
-git clone --recursive https://github.com/rovechkin1/avalanche-k8s
+git clone --recursive https://github.com/patrick-ogrady/avalanche-k8s
 ```
 ### Clone submodules
 ```
@@ -117,7 +117,7 @@ Via terminal
 ```
 
 
-### Configure prometheus repo 
+### Configure prometheus repo
 This step is optional unless installing
 prometheus from repo. For that need to change deploi-cli.sh::deploy_prometheus()
 ```
